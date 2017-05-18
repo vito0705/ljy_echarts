@@ -1,0 +1,2 @@
+module LjymapsHelper
+end

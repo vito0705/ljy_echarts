@@ -38,15 +38,87 @@
         return res;
     };
 
+//    for lines
+    var planePath = 'arrow';
+    var line_geoCoordMap;
+    var line_data;
+    $.get('/ljy/map').done(function (map_data) {
+        line_geoCoordMap = map_data;
+    });
+    $.get('/ljy/value').done(function (value_data) {
+        line_data = value_data;
+    });
+    function formtGCData(geoData, data, srcNam, dest) {
+        var tGeoDt = [];
+        if (dest) {
+            for (var i = 0, len = data.length; i < len; i++) {
+                if (srcNam != data[i].name) {
+                    tGeoDt.push({
+                        coords: [geoData[srcNam], geoData[data[i].name]]
+                    });
+                }
+            }
+        } else {
+            for (var i = 0, len = data.length; i < len; i++) {
+                if (srcNam != data[i].name) {
+                    tGeoDt.push({
+                        coords: [geoData[data[i].name], geoData[srcNam]]
+                    });
+                }
+            }
+        }
+        return tGeoDt;
+    }
+
+    function formtVData(geoData, data, srcNam) {
+        var tGeoDt = [];
+        for (var i = 0, len = data.length; i < len; i++) {
+            var tNam = data[i].name;
+            if (srcNam != tNam) {
+                tGeoDt.push({
+                    name: tNam,
+                    value: geoData[tNam]
+                });
+            }
+
+        }
+        tGeoDt.push({
+            name: srcNam,
+            value: geoData[srcNam],
+            symbolSize: 8,
+            itemStyle: {
+                normal: {
+                    color: 'red',
+                    borderColor: '#000'
+                }
+            }
+        });
+        return tGeoDt;
+    }
+    var line_convertData = function (data) {
+        var res = [];
+        for (var i = 0; i < data.length; i++) {
+            var geoCoord = line_geoCoordMap[data[i].name];
+            if (geoCoord) {
+                res.push({
+                    name: data[i].name,
+                    value: geoCoord.concat(data[i].value)
+                });
+            }
+        }
+        return res;
+    };
+
     function get_gps_data() {
 
         $.get('nyiots/map_gps_data').done(function (map_data) {
+//            map_data = map_data.concat(line_data);
 
             option = {
                 backgroundColor: '#404a59',
                 title: {
-                    text: '全国主要城市随机值',
-                    subtext: 'data from random',
+                    text: '各设备用电量情况',
+//                    subtext: 'data from random',
                     x: 'center',
                     textStyle: {
                         color: '#fff'
@@ -69,7 +141,7 @@
                 },
                 visualMap: {
                     min: 0,
-                    max: 100,
+                    max: 80,
                     calculable: true,
                     inRange: {
                         color: ['#fff', '#eac736', '#d94e5d']
@@ -97,13 +169,124 @@
                     }
                 },
                 series: [
+
+//                    {
+//                        name: 'Top 5',
+//                        type: 'effectScatter',
+//                        coordinateSystem: 'geo',
+//                        data: convertData(map_data.sort(function (a, b) {
+//                            return b.value - a.value;
+//                        }).slice(0, 5)),
+//                        symbolSize: function (val) {
+//                            return val[2] / 4;
+//                        },
+//                        showEffectOn: 'render',
+//                        rippleEffect: {
+//                            brushType: 'stroke'
+//                        },
+//                        hoverAnimation: true,
+//                        label: {
+//                            normal: {
+//                                formatter: '{b}',
+//                                position: 'right',
+//                                show: true
+//                            }
+//                        },
+//                        itemStyle: {
+//                            normal: {
+//                                color: '#f4e925',
+//                                shadowBlur: 10,
+//                                shadowColor: '#333'
+//                            }
+//                        },
+//                        zlevel: 1
+//                    },
+                    {
+                        type: 'lines',
+                        zlevel: 2,
+                        effect: {
+                            show: true,
+                            period: 6,
+                            trailLength: 0.1,
+                            color: '#db9982',
+                            symbol: planePath,
+                            symbolSize: 8
+                        },
+                        lineStyle: {
+                            normal: {
+                                color: '#a6c84c',
+//                                color: '#fff',
+                                width: 1,
+                                opacity: 0.4,
+                                curveness: 0.2
+                            }
+                        },
+                        data: formtGCData(line_geoCoordMap, line_data, '西安', true)
+                    },
+                    {
+
+                        type: 'lines',
+                        zlevel: 2,
+                        effect: {
+                            show: true,
+                            period: 6,
+                            trailLength: 0.1,
+                            color: 'maroon',
+                            symbol: planePath,
+                            symbolSize: 8
+                        },
+                        lineStyle: {
+                            normal: {
+                                color: '#a6c84c',
+//                                color: '#fff',
+                                width: 1,
+                                opacity: 0.4,
+                                curveness: 0.2
+                            }
+                        },
+                        data: formtGCData(line_geoCoordMap, line_data, '西安', false)
+                    },
+                    {
+
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        rippleEffect: {
+                            period: 4,
+                            scale: 1,
+                            brushType: 'stroke'
+                        },
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'right',
+                                formatter: '{b}'
+                            }
+                        },
+                        hoverAnimation: true,
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                return params.name + ' : ' + '[' + params.value[0] + ', ' + params.value[1] + "]";
+                            }
+                        },
+                        symbolSize: 8,
+                        itemStyle: {
+                            normal: {
+                                color: '#fff',
+                                borderColor: 'gold'
+                            }
+                        },
+
+                        data: formtVData(line_geoCoordMap, line_data, '西安')
+                    },
                     {
                         name: 'num',
                         type: 'scatter',
                         coordinateSystem: 'geo',
                         data: convertData(map_data),
                         symbolSize: function (val) {
-                            return val[2] / 4;
+                            return val[2] / 3;
                         },
                         label: {
                             normal: {
@@ -119,37 +302,6 @@
                                 borderWidth: 1
                             }
                         }
-                    },
-                    {
-                        name: 'Top 5',
-                        type: 'effectScatter',
-                        coordinateSystem: 'geo',
-                        data: convertData(map_data.sort(function (a, b) {
-                            return b.value - a.value;
-                        }).slice(0, 5)),
-                        symbolSize: function (val) {
-                            return val[2] / 4;
-                        },
-                        showEffectOn: 'render',
-                        rippleEffect: {
-                            brushType: 'stroke'
-                        },
-                        hoverAnimation: true,
-                        label: {
-                            normal: {
-                                formatter: '{b}',
-                                position: 'right',
-                                show: true
-                            }
-                        },
-                        itemStyle: {
-                            normal: {
-                                color: '#f4e925',
-                                shadowBlur: 10,
-                                shadowColor: '#333'
-                            }
-                        },
-                        zlevel: 1
                     }
                 ]
             };
