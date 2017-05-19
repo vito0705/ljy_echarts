@@ -421,7 +421,7 @@ class Nydatum < ApplicationRecord
         value_hash = Hash.new
         his_time = Time.now - (5 * 60) * (199 - i)
         his_time = his_time.strftime("%Y-%m-%d %H:%M:%S")
-        his_value =  300 - rand(100)
+        his_value =  rand(80)
         value_hash[:time] = his_time
         value_hash[:value] = his_value
         value[i] = value_hash
@@ -434,7 +434,7 @@ class Nydatum < ApplicationRecord
     def map_point_current_data(point_data)
       #写的比较简陋，目前只负责生成随机数据+当前时间
       value = Array.new
-      real_value =  300 - rand(100)
+      real_value =   rand(80)
 
       real_time = Time.now.strftime("%Y-%m-%d %H:%M:%S")
 

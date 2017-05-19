@@ -51,7 +51,7 @@
 
             speed_option = {
                 title: {      //标题组件
-                    text: point_data["name"]  + "采集速率图"
+                    text: point_data["name"]  + "单位时间用电量变化图"
                 },
     //            backgroundColor: '#404a59',
                 tooltip: {    //提示框组件
@@ -59,7 +59,7 @@
                 },
 
                 legend: {     //图例组件
-                    data: ['采集速率']
+                    data: ['单位时间用电量']
                 },
 
                 grid: {       //直角坐标系内绘图网格
@@ -97,7 +97,7 @@
 
                 series: [      //系列列表
                     {
-                        name: '采集速率',
+                        name: '单位时间用电量',
                         type: 'line',
 //                        stack: 'speed',
                         smooth:true,
@@ -158,12 +158,12 @@
             },
             series: [
                 {
-                    name: '当前速率',
+                    name: '单位时间实时用电量',
                     type: 'gauge',
                     min: 0,
-                    max: 300,
-                    detail: {formatter:'当前速率'},
-                    data: [{value: "<%= @value%>", name: '次/秒'}]
+                    max: 80,
+                    detail: {formatter:'当前用电量'},
+                    data: [{value: "<%= @value%>", name: ''}]
                 }
             ]
         };
